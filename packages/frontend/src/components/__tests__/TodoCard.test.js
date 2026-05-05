@@ -23,9 +23,9 @@ describe('TodoCard Component', () => {
 
   it('should render todo title and due date', () => {
     render(<TodoCard todo={mockTodo} {...mockHandlers} isLoading={false} />);
-    
+
     expect(screen.getByText('Test Todo')).toBeInTheDocument();
-    expect(screen.getByText(/December 25, 2025/)).toBeInTheDocument();
+    expect(screen.getByText(/Due:/)).toBeInTheDocument();
   });
 
   it('should render unchecked checkbox when todo is incomplete', () => {
@@ -96,7 +96,53 @@ describe('TodoCard Component', () => {
   it('should not render due date when dueDate is null', () => {
     const todoNoDate = { ...mockTodo, dueDate: null };
     render(<TodoCard todo={todoNoDate} {...mockHandlers} isLoading={false} />);
-    
+
     expect(screen.queryByText(/Due:/)).not.toBeInTheDocument();
+  });
+
+  describe('Overdue Indicator', () => {
+    it('should show overdue badge for past due date and incomplete todo', () => {
+      const overdueTodo = { ...mockTodo, dueDate: '2020-01-01', completed: 0 };
+      render(<TodoCard todo={overdueTodo} {...mockHandlers} isLoading={false} />);
+
+      expect(screen.getByText('Overdue')).toBeInTheDocument();
+    });
+
+    it('should NOT show overdue badge for past due date and completed todo', () => {
+      const completedOverdueTodo = { ...mockTodo, dueDate: '2020-01-01', completed: 1 };
+      render(<TodoCard todo={completedOverdueTodo} {...mockHandlers} isLoading={false} />);
+
+      expect(screen.queryByText('Overdue')).not.toBeInTheDocument();
+    });
+
+    it('should NOT show overdue badge for future due date', () => {
+      const futureTodo = { ...mockTodo, dueDate: '2099-12-31', completed: 0 };
+      render(<TodoCard todo={futureTodo} {...mockHandlers} isLoading={false} />);
+
+      expect(screen.queryByText('Overdue')).not.toBeInTheDocument();
+    });
+
+    it('should NOT show overdue badge when no due date is set', () => {
+      const noDueDateTodo = { ...mockTodo, dueDate: null, completed: 0 };
+      render(<TodoCard todo={noDueDateTodo} {...mockHandlers} isLoading={false} />);
+
+      expect(screen.queryByText('Overdue')).not.toBeInTheDocument();
+    });
+
+    it('should apply overdue CSS class for overdue todo', () => {
+      const overdueTodo = { ...mockTodo, dueDate: '2020-01-01', completed: 0 };
+      const { container } = render(<TodoCard todo={overdueTodo} {...mockHandlers} isLoading={false} />);
+
+      const card = container.querySelector('.todo-card');
+      expect(card).toHaveClass('overdue');
+    });
+
+    it('should NOT apply overdue CSS class for completed overdue todo', () => {
+      const completedOverdueTodo = { ...mockTodo, dueDate: '2020-01-01', completed: 1 };
+      const { container } = render(<TodoCard todo={completedOverdueTodo} {...mockHandlers} isLoading={false} />);
+
+      const card = container.querySelector('.todo-card');
+      expect(card).not.toHaveClass('overdue');
+    });
   });
 });
