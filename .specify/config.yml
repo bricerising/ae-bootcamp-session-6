@@ -1,0 +1,8 @@
+version: "1.0"
+ai: copilot
+project:
+  name: copilot-bootcamp-todo-app
+  description: Full-stack todo application with React frontend and Express.js backend
+spec_directory: specs
+memory_directory: .specify/memory
+templates_directory: .specify/templates
